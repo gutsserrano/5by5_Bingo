@@ -1,15 +1,35 @@
 ﻿// ** BINGO **
 
-int playersQuantity = 2;
+// Variable to save the bingo card size
+int cardSize = 5;
 
-int[] cardsQuantity = new int[playersQuantity];
+// Variable to set the max value in the card
+int cardMaxValue = 26;
 
-// sum is the amount of cards of the players summed
-int sum = 0;
+// Variable to set the max value to draw 
+int bingoDrawMaxValue = 100;
+
+// Array to save all the drawn numbers
+int[] drawnNumbers  = new int[bingoDrawMaxValue - 1];
+
+// The quantity of players in the game
+int playersQuantity;
+
+// The amount of cards of each player
+int[] cardsQuantity;
+
+// gameCards has the amount of cards of the players summed
 int[][,] gameCards;
 
+// The points of each player
 int[] playersPoints;
+
+// The name of each player
 string[] playersNames;
+
+// Variable to count the point in gameCards
+int count;
+
 
 // Function to read the amount of players
 int readPlayersQuantity()
@@ -38,7 +58,7 @@ int[] readCardsQuantity(int quantity)
     {
         do
         {
-            Console.WriteLine($"How many Bingo Cards player {i + 1} will take?");
+            Console.WriteLine($"\nHow many Bingo Cards player {i + 1} will take?");
             array[i] = int.Parse(Console.ReadLine());
 
             if (array[i] < 1)
@@ -51,6 +71,7 @@ int[] readCardsQuantity(int quantity)
     return array;
 }
 
+// Function to create the array of all cards in the game 
 int[][,] createAllCards(int[] cardsQtt)
 {
     int sum = 0;
@@ -61,11 +82,100 @@ int[][,] createAllCards(int[] cardsQtt)
     return new int[sum][,];
 }
 
-playersQuantity = readPlayersQuantity();
+// Function to fill a matrix of random numbers
+int[,] FillMatriX(int sideSize, int maxValue)
+{
+    int[,] matrix = new int[sideSize, sideSize];
+    int aux;
+    for (int line = 0; line < sideSize; line++)
+    {
+        for (int column = 0; column < sideSize; column++)
+        {
+            do
+            {
+                aux = new Random().Next(1, maxValue);
+            } while (ExistsInMatrix(matrix, aux));
+            matrix[line, column] = aux;
+        }
+    }
+    return matrix;
+}
 
-cardsQuantity = readCardsQuantity(playersQuantity);
+bool ExistsInMatrix(int[,] matrix, int number)
+{
+    for (int line = 0; line < matrix.GetLength(0); line++)
+    {
+        for(int column = 0; column < matrix.GetLength(1); column++)
+        {
+            if(number == matrix[line, column]) 
+                return true;
+        }
+    }
+    return false;
+}
 
-gameCards = createAllCards(cardsQuantity);
+// Function to geta a random number
+int GetRandom(int min, int max)
+{
+    return new Random().Next(min, max);
+}
 
-playersPoints = new int[playersQuantity];
-playersNames = new string[playersQuantity];
+// Function to clear the screen and print a "Bingo" title
+void Title()
+{
+    Console.Clear();
+    Console.WriteLine("   ____   _                      \r\n  |  _ \\ (_)                     \r\n  | |_) | _  _ __    __ _   ___  \r\n  |  _ < | || '_ \\  / _` | / _ \\ \r\n  | |_) || || | | || (_| || (_) |\r\n  |____/ |_||_| |_| \\__, | \\___/ \r\n                     __/ |       \r\n                    |___/        ");
+}
+
+// Function to play again or not
+bool ExitMenu()
+{
+    string option = "";
+    Console.WriteLine("\nDo you wanna play again?");
+    Console.WriteLine("Press 'y' for yes");
+    Console.WriteLine("Press any other key to exit");
+    option = Console.ReadLine();
+
+    if(option == "y")
+    {
+        return true;
+    }
+    return false;
+}
+
+do
+{
+    Title();
+    count = 0;
+
+    playersQuantity = readPlayersQuantity();
+
+    cardsQuantity = readCardsQuantity(playersQuantity);
+
+    gameCards = createAllCards(cardsQuantity);
+
+    playersPoints = new int[playersQuantity];
+    playersNames = new string[playersQuantity];
+
+    // Fill all the matrixes with random numbers
+    for(int i = 0; i < gameCards.Length; i++)
+    {
+        gameCards[i] = FillMatriX(cardSize, bingoDrawMaxValue);
+    }
+
+    // print all matrixes
+    for (int i = 0; i < gameCards.Length; i++)
+    {
+        for (int line = 0; line < cardSize; line++)
+        {
+            for (int column = 0; column < cardSize; column++)
+            {
+
+                Console.Write($"{gameCards[i][line, column]} ");
+            }
+            Console.WriteLine();
+        }
+        Console.WriteLine("\n-----------------------------\n");
+    }
+
+} while(ExitMenu());
