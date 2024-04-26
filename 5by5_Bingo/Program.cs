@@ -6,9 +6,6 @@ using System.Reflection.Metadata.Ecma335;
 
 int cardSize = 5;
 
-// Variable to set the max value in the card
-int cardMaxValue = 26;
-
 // Variable to set the max value to draw 
 int bingoDrawMaxValue = 100;
 
@@ -34,6 +31,14 @@ string[] playersNames;
 
 // Variable to count the point in gameCards
 int count;
+
+bool lineBingo;
+bool columnBingo;
+bool bingo;
+
+int[,] lineBingoMatrix = null;
+int[,] columnBingoMatrix = null;
+int[,] bingoMatrix = null;
 
 
 // Function to read the amount of players
@@ -220,9 +225,7 @@ void printAllCards(int[][,] cards, int[] reference)
 {
     for (int i = 0; i < cards.Length; i++)
     {
-        Console.WriteLine($"Player {reference[i]}");
-        Console.WriteLine(" ______________________");
-        Console.WriteLine("|                      |");
+        Console.WriteLine($"Player {reference[i]}");        
         printMatrix(cards[i]);
     }
 }
@@ -230,6 +233,8 @@ void printAllCards(int[][,] cards, int[] reference)
 // Function to print a Matrix (card)
 void printMatrix(int[,] matrix)
 {
+    Console.WriteLine(" ______________________");
+    Console.WriteLine("|                      |");
     for (int line = 0; line < cardSize; line++)
     {
         for (int column = 0; column < cardSize; column++)
@@ -270,6 +275,141 @@ void printMatrix(int[,] matrix)
 
 }
 
+// Function to verify the line bingo and return the index of the matrix
+int verifyLineBingo(int[][,] cards)
+{
+    int counter;
+    if (!lineBingo)
+    {
+        for(int i = 0; i < cards.Length && !lineBingo; i++) 
+        {          
+            for (int line = 0; line < cardSize && !lineBingo; line++) 
+            {
+                counter = 0;
+                for (int column = 0; column < cardSize; column++)
+                {
+                    if (cards[i][line, column] < 0)
+                    {
+                        counter++;
+                    }
+
+                    if(counter == cardSize)
+                    {                       
+                        lineBingo = true;
+                        lineBingoMatrix = cards[i];
+                        return i;
+                    }
+                }
+            }
+        }
+    }
+
+    return -1;
+}
+
+// Function to verify the column bingo and return the index of the matrix
+int verifyColumnBingo(int[][,] cards)
+{
+    int counter;
+    if (!columnBingo)
+    {
+        for (int i = 0; i < cards.Length && !columnBingo; i++)
+        {
+            for (int line = 0; line < cardSize && !columnBingo; line++)
+            {
+                counter = 0;
+                for (int column = 0; column < cardSize; column++)
+                {
+                    if (cards[i][column, line] < 0)
+                    {
+                        counter++;
+                    }
+
+                    if (counter == cardSize)
+                    {
+                        columnBingo = true;
+                        columnBingoMatrix = cards[i];
+                        return i;
+                    }
+                }
+            }
+        }
+    }
+
+    return -1;
+}
+
+int verifyBingo(int[][,] cards)
+{
+    int counter = 0;
+    int auxIndex = 0;
+    for(int i = 0; i < playerReferences.Length; i++)
+    {
+        auxIndex = i;
+        counter = 0;
+        for(int line = 0; line < cardSize; line++)
+        {
+            for(int column = 0; column < cardSize; column++)
+            {
+                if (cards[i][line, column] < 0)
+                {
+                    counter++;
+                }
+            }
+        }
+    }
+    if(counter == cardSize * cardSize)
+    {
+        bingo = true;
+        bingoMatrix = cards[auxIndex];
+        return auxIndex;
+    }
+    else
+    {
+        return -1;
+    }
+}
+
+void verifyPoints(int[][,] cards, int[] references, int[] points)
+{
+    int auxLine = verifyLineBingo(cards);
+
+    if (auxLine != -1)
+    {
+        points[references[auxLine]] += 1;
+    }
+
+    int auxColumn = verifyColumnBingo(cards);
+    if (auxColumn != -1)
+    {
+        points[references[auxColumn]] += 1;
+    }
+
+    int auxBingo = verifyBingo(cards);
+    if (auxBingo != -1)
+    {
+        points[references[auxBingo]] += 5;
+    }
+
+    if (lineBingoMatrix != null)
+    {
+        Console.WriteLine("card with Horizontal bingo!\n");
+        printMatrix(lineBingoMatrix);
+    }
+
+    if (columnBingoMatrix != null)
+    {
+        Console.WriteLine("card with Vertical Bingo\n");
+        printMatrix(columnBingoMatrix);
+    }
+
+    if (bingoMatrix != null)
+    {
+        Console.WriteLine("Bingo card!\n");
+        printMatrix(bingoMatrix);
+    }
+}
+
 // Function to geta a random number
 int GetRandom(int min, int max)
 {
@@ -306,6 +446,10 @@ do
     gameCards = createAllCards(cardsQuantity);
     playerReferences = createReferences(cardsQuantity);
 
+    lineBingo = false;
+    columnBingo = false;
+    bingo = false;
+
     playersPoints = new int[playersQuantity];
     playersNames = new string[playersQuantity];
 
@@ -326,8 +470,18 @@ do
 
         VerifyGameCards(gameCards, drawnNumbers);
 
+        verifyPoints(gameCards, playerReferences, playersPoints);
+
         printAllCards(gameCards, playerReferences);
+
+        Console.WriteLine("Players points");
+        for(int i = 0; i < playersPoints.Length; i++)
+        {
+            Console.WriteLine($"Player {cardsQuantity[i]}: {playersPoints[i]} points");
+        }
+
+        Console.WriteLine("Variavel bingo" + bingo);
         Console.ReadKey();
-    } while (true);
+    } while (!bingo);
 
 } while(ExitMenu());
