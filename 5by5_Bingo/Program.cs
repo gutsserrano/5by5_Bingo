@@ -104,13 +104,13 @@ int[,] FillMatriX(int sideSize, int maxValue)
 }
 
 // Function to draw a number
-void DrawNumber(int[] drawnNumber)
+void DrawNumber(int[] drawnNumber, int max)
 {
     bool stop = false;
     int aux;
     do
     {
-        aux = GetRandom(1, 100);
+        aux = GetRandom(1, max);
     } while(ExistsInArray(drawnNumber, aux));
     
     for (int i = 0; i < drawnNumber.Length && !stop; i++)
@@ -122,6 +122,33 @@ void DrawNumber(int[] drawnNumber)
         }
     }
    
+}
+
+// Function to verify all cards
+void VerifyGameCards(int[][,] matrix, int[] numbers)
+{
+    for (int i = 0; i < matrix.GetLength(0); i++) 
+    {
+        for (int j = 0; j < numbers.Length && numbers[i] != 0; j++)
+        {
+            MarkValue(matrix[i], numbers[j]);
+        }
+    }
+}
+
+// Function no mark a value if exists
+void MarkValue(int[,] matrix, int value)
+{
+    for (int line = 0; line < matrix.GetLength(0); line++) 
+    {
+        for (int column = 0; column < matrix.GetLength(1); column++) 
+        {
+            if (matrix[line, column] == value)
+            {
+                matrix[line, column] = value * (-1);
+            }
+        }   
+    }
 }
 
 // Function to verify if a number exists in a matrix
@@ -157,7 +184,7 @@ void PrintArray(int[] array)
         Console.Write($"{array[i]} - ");
     }
 
-    Console.WriteLine();
+    Console.WriteLine("\n");
 }
 
 // Function to geta a random number
@@ -209,6 +236,20 @@ do
         gameCards[i] = FillMatriX(cardSize, bingoDrawMaxValue);
     }
 
+    for (int i = 0; i < 40; i++)
+    {
+        DrawNumber(drawnNumbers, bingoDrawMaxValue);
+    }
+
+    /*DrawNumber(drawnNumbers, bingoDrawMaxValue);
+    DrawNumber(drawnNumbers, bingoDrawMaxValue);
+    DrawNumber(drawnNumbers, bingoDrawMaxValue);
+    DrawNumber(drawnNumbers, bingoDrawMaxValue);*/
+
+    PrintArray(drawnNumbers);
+
+    VerifyGameCards(gameCards, drawnNumbers);
+
     // print all matrixes
     for (int i = 0; i < gameCards.Length; i++)
     {
@@ -216,16 +257,28 @@ do
         {
             for (int column = 0; column < cardSize; column++)
             {
-
-                Console.Write($"{gameCards[i][line, column]} ");
+                if(column == 0)
+                {
+                    Console.Write("|");
+                }
+                if (gameCards[i][line, column] > 0)
+                {
+                    Console.Write($" {gameCards[i][line, column]:00} ");
+                }
+                else
+                {
+                    Console.Write($"{gameCards[i][line, column]:00}-");
+                }
+                if (column == 4)
+                {
+                    Console.Write("|");
+                }
             }
             Console.WriteLine();
         }
-        Console.WriteLine("\n-----------------------------\n");
+        Console.WriteLine("\n-------------------------\n");
     }
 
-    DrawNumber(drawnNumbers);
-
-    PrintArray(drawnNumbers);
+   
 
 } while(ExitMenu());
