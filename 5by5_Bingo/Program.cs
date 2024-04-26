@@ -1,6 +1,8 @@
 ﻿// ** BINGO **
 
 // Variable to save the bingo card size
+using System.Reflection.Metadata.Ecma335;
+
 int cardSize = 5;
 
 // Variable to set the max value in the card
@@ -101,6 +103,28 @@ int[,] FillMatriX(int sideSize, int maxValue)
     return matrix;
 }
 
+// Function to draw a number
+void DrawNumber(int[] drawnNumber)
+{
+    bool stop = false;
+    int aux;
+    do
+    {
+        aux = GetRandom(1, 100);
+    } while(ExistsInArray(drawnNumber, aux));
+    
+    for (int i = 0; i < drawnNumber.Length && !stop; i++)
+    {
+        if (drawnNumber[i] == 0)
+        {
+            drawnNumber[i] = aux;
+            stop = true;
+        }
+    }
+   
+}
+
+// Function to verify if a number exists in a matrix
 bool ExistsInMatrix(int[,] matrix, int number)
 {
     for (int line = 0; line < matrix.GetLength(0); line++)
@@ -112,6 +136,28 @@ bool ExistsInMatrix(int[,] matrix, int number)
         }
     }
     return false;
+}
+
+// Function to verify if a number exists in a array
+bool ExistsInArray(int[] array, int number)
+{
+    for (int i = 0; i < array.Length; i++)
+    {
+        if(number == array[i]) 
+            return true;
+    }
+    return false;
+}
+
+// Function to print an array
+void PrintArray(int[] array)
+{
+    for (int i = 0; i < array.Length && array[i] != 0;i++)
+    {
+        Console.Write($"{array[i]} - ");
+    }
+
+    Console.WriteLine();
 }
 
 // Function to geta a random number
@@ -132,8 +178,8 @@ bool ExitMenu()
 {
     string option = "";
     Console.WriteLine("\nDo you wanna play again?");
-    Console.WriteLine("Press 'y' for yes");
-    Console.WriteLine("Press any other key to exit");
+    Console.WriteLine("Type 'y' for yes");
+    Console.WriteLine("Type any other key to exit");
     option = Console.ReadLine();
 
     if(option == "y")
@@ -177,5 +223,9 @@ do
         }
         Console.WriteLine("\n-----------------------------\n");
     }
+
+    DrawNumber(drawnNumbers);
+
+    PrintArray(drawnNumbers);
 
 } while(ExitMenu());
