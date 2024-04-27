@@ -3,6 +3,7 @@
 // Variable to save the bingo card size
 using System.Drawing;
 using System.Reflection.Metadata.Ecma335;
+using System.Xml.Linq;
 
 int cardSize = 5;
 
@@ -57,6 +58,55 @@ int readPlayersQuantity()
     } while (quantity < 2);
 
     return quantity;
+}
+
+string[] readPlayerNames(int quantity)
+{
+    string[] array = new string[quantity];
+
+    for (int i = 0; i < quantity; i++)
+    {
+        do
+        {
+            Console.WriteLine($"Name of the player {i+1}:");
+            array[i] = Console.ReadLine();
+
+            if (array[i] == "")
+            {
+                Console.WriteLine("\nPlease, write the name\n");
+            }
+        } while (array[i] == "");
+    }
+
+    return array;
+}
+
+void ReadNameAndCards(string[] name, int[] cardsQtt, int quantity)
+{
+    for (int i = 0; i < quantity; i++)
+    {
+        do
+        {
+            Console.WriteLine($"\nName of the player {i + 1}:");
+            name[i] = Console.ReadLine();
+
+            if (name[i] == "")
+            {
+                Console.WriteLine("\nPlease, write the name\n");
+            }
+        } while (name[i] == "");
+
+        do
+        {
+            Console.WriteLine($"\nHow many Bingo Cards player {name[i]} will take?");
+            cardsQtt[i] = int.Parse(Console.ReadLine());
+
+            if (cardsQtt[i] < 1)
+            {
+                Console.WriteLine($"\nPlayer {name[i]} must have at least one card!\n");
+            }
+        } while (cardsQtt[i] < 1);
+    }
 }
 
 // Function to read te amount of cards fow wich player
@@ -152,7 +202,21 @@ int DrawNumber(int[] drawnNumber, int max)
             stop = true;
         }
     }
-    
+
+    int sort;
+    for (int i = 0; i < drawnNumber.Length; i++)
+    {
+        for (int j = 0; j < drawnNumber.Length - 1; j++)
+        {
+            if (drawnNumber[j] < drawnNumber[j + 1])
+            {
+                sort = drawnNumber[j + 1];
+                drawnNumber[j + 1] = drawnNumber[j];
+                drawnNumber[j] = sort;
+            }
+        }
+    }
+
     return aux;
     
 }
@@ -214,20 +278,35 @@ void PrintArray(int[] array)
 {
     for (int i = 0; i < array.Length && array[i] != 0;i++)
     {
-        Console.Write($"{array[i]} - ");
+        Console.Write($"- {array[i]} ");
     }
 
     Console.WriteLine("\n");
 }
 
 // Function to print all cards in the game
-void printAllCards(int[][,] cards, int[] reference)
+void printAllCards(int[][,] cards, int[] reference, string[] names)
 {
     for (int i = 0; i < cards.Length; i++)
     {
-        Console.WriteLine($"Player {reference[i]}");        
+        if(i > 0)
+        {
+            if (reference[i] != reference[i - 1] || i == 0)
+            {
+                Console.WriteLine($"{names[reference[i]]} cards: ");
+            }
+        }
+        else
+        {
+            Console.WriteLine($"{names[i]} cards: ");
+        }        
         printMatrix(cards[i]);
     }
+}
+
+void printAlignedMatrixes(int[][,] cards, int[] reference, int[] cardsQtt, string[] names)
+{
+    // TODO
 }
 
 // Function to print a Matrix (card)
@@ -343,31 +422,30 @@ int verifyBingo(int[][,] cards)
 {
     int counter = 0;
     int auxIndex = 0;
-    for(int i = 0; i < playerReferences.Length; i++)
+    for (int i = 0; i < playerReferences.Length; i++)
     {
         auxIndex = i;
         counter = 0;
-        for(int line = 0; line < cardSize; line++)
+        for (int line = 0; line < cardSize; line++)
         {
-            for(int column = 0; column < cardSize; column++)
+            for (int column = 0; column < cardSize; column++)
             {
                 if (cards[i][line, column] < 0)
                 {
                     counter++;
                 }
             }
+
+            if (counter == cardSize * cardSize)
+            {
+                bingo = true;
+                bingoMatrix = cards[auxIndex];
+                return auxIndex;
+            }
         }
     }
-    if(counter == cardSize * cardSize)
-    {
-        bingo = true;
-        bingoMatrix = cards[auxIndex];
-        return auxIndex;
-    }
-    else
-    {
-        return -1;
-    }
+
+    return -1;
 }
 
 void verifyPoints(int[][,] cards, int[] references, int[] points)
@@ -410,6 +488,15 @@ void verifyPoints(int[][,] cards, int[] references, int[] points)
     }
 }
 
+void PrintPlayersPoints(int[] points, string[] names)
+{
+    Console.WriteLine("Players points:");
+    for (int i = 0; i < points.Length; i++)
+    {
+        Console.WriteLine($"{names[i]}: {points[i]} points");
+    }
+}
+
 // Function to geta a random number
 int GetRandom(int min, int max)
 {
@@ -442,7 +529,9 @@ bool ExitMenu()
 do
 {
     playersQuantity = readPlayersQuantity();
-    cardsQuantity = readCardsQuantity(playersQuantity);
+    playersNames = new string[playersQuantity];
+    cardsQuantity = new int[playersQuantity];
+    ReadNameAndCards(playersNames, cardsQuantity, playersQuantity);
     gameCards = createAllCards(cardsQuantity);
     playerReferences = createReferences(cardsQuantity);
 
@@ -451,7 +540,6 @@ do
     bingo = false;
 
     playersPoints = new int[playersQuantity];
-    playersNames = new string[playersQuantity];
 
     // Fill all the matrixes with random numbers
     for (int i = 0; i < gameCards.Length; i++)
@@ -466,21 +554,17 @@ do
         drawn = DrawNumber(drawnNumbers, bingoDrawMaxValue);
 
         PrintArray(drawnNumbers);
-        Console.WriteLine($"Drawn Number {drawn}");
+        Console.WriteLine($"Drawn Number {drawn}\n");
 
         VerifyGameCards(gameCards, drawnNumbers);
 
         verifyPoints(gameCards, playerReferences, playersPoints);
 
-        printAllCards(gameCards, playerReferences);
+        //printAllCards(gameCards, playerReferences, playersNames);
+        printAlignedMatrixes(gameCards, playerReferences, cardsQuantity, playersNames);
 
-        Console.WriteLine("Players points");
-        for(int i = 0; i < playersPoints.Length; i++)
-        {
-            Console.WriteLine($"Player {cardsQuantity[i]}: {playersPoints[i]} points");
-        }
+        PrintPlayersPoints(playersPoints, playersNames);
 
-        Console.WriteLine("Variavel bingo" + bingo);
         Console.ReadKey();
     } while (!bingo);
 
