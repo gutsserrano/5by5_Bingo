@@ -1,6 +1,7 @@
 ﻿// ** BINGO **
 
 // Variable to save the bingo card size
+using System.Data.Common;
 using System.Drawing;
 using System.Reflection.Metadata.Ecma335;
 using System.Xml.Linq;
@@ -11,7 +12,7 @@ int cardSize = 5;
 int bingoDrawMaxValue = 100;
 
 // Array to save all the drawn numbers
-int[] drawnNumbers  = new int[bingoDrawMaxValue - 1];
+int[] drawnNumbers;
 
 // The quantity of players in the game
 int playersQuantity;
@@ -185,7 +186,7 @@ int[,] FillMatriX(int sideSize, int maxValue)
 }
 
 // Function to draw a number
-int DrawNumber(int[] drawnNumber, int max)
+void DrawNumber(int[] drawnNumber, int max)
 {
     bool stop = false;
     int aux;
@@ -217,8 +218,15 @@ int DrawNumber(int[] drawnNumber, int max)
         }
     }
 
-    return aux;
-    
+
+    PrintDrawnNumbers(drawnNumber);
+
+    Console.Write("Current Drawn Number: ");
+    Console.ForegroundColor = ConsoleColor.Black;
+    Console.BackgroundColor = ConsoleColor.White;
+    Console.Write($"{aux}\n");
+    Console.ResetColor();
+    Console.WriteLine();
 }
 
 // Function to verify all cards
@@ -274,10 +282,15 @@ bool ExistsInArray(int[] array, int number)
 }
 
 // Function to print an array
-void PrintArray(int[] array)
+void PrintDrawnNumbers(int[] array)
 {
+    Console.Write("Drawn numbers");
     for (int i = 0; i < array.Length && array[i] != 0;i++)
     {
+        if(i % 20 == 0)
+        {
+            Console.WriteLine();
+        }
         Console.Write($"- {array[i]} ");
     }
 
@@ -469,6 +482,12 @@ void verifyPoints(int[][,] cards, int[] references, int[] points)
         points[references[auxBingo]] += 5;
     }
 
+    if (bingoMatrix != null)
+    {
+        Console.WriteLine("Bingo card!\n");
+        printMatrix(bingoMatrix);
+    }
+
     if (lineBingoMatrix != null)
     {
         Console.WriteLine("card with Horizontal bingo!\n");
@@ -481,11 +500,6 @@ void verifyPoints(int[][,] cards, int[] references, int[] points)
         printMatrix(columnBingoMatrix);
     }
 
-    if (bingoMatrix != null)
-    {
-        Console.WriteLine("Bingo card!\n");
-        printMatrix(bingoMatrix);
-    }
 }
 
 void PrintPlayersPoints(int[] points, string[] names)
@@ -526,6 +540,43 @@ bool ExitMenu()
     return false;
 }
 
+void FinalScreen()
+{
+    Title();
+
+    Console.WriteLine("\nBingo!!\n");
+
+    int higher = 0;
+    for(int i = 0; i < playersPoints.Length; i++)
+    {
+        if (playersPoints[i] > playersPoints[higher]) 
+        {
+            higher = i;
+        }
+    }
+
+    Console.WriteLine("\t**WINNER**");
+    Console.WriteLine($"\t{playersNames[higher]} - {playersPoints[higher]} points\n");
+
+    Console.WriteLine("Other players:");
+
+    for (int i = 0; i < playersPoints.Length; i++)
+    {
+        if(i != higher)
+        {
+            Console.WriteLine($"{playersNames[i]} - {playersPoints[i]}");
+        }
+    }
+
+    if (bingoMatrix != null)
+    {
+        Console.WriteLine($"\n{playersNames[higher]}'s card!");
+        printMatrix(bingoMatrix);
+    }
+
+    Console.ReadKey();
+}
+
 do
 {
     playersQuantity = readPlayersQuantity();
@@ -534,12 +585,17 @@ do
     ReadNameAndCards(playersNames, cardsQuantity, playersQuantity);
     gameCards = createAllCards(cardsQuantity);
     playerReferences = createReferences(cardsQuantity);
+    playersPoints = new int[playersQuantity];
+    drawnNumbers = new int[bingoDrawMaxValue - 1];
 
     lineBingo = false;
     columnBingo = false;
     bingo = false;
 
-    playersPoints = new int[playersQuantity];
+    bingoMatrix = null;
+    columnBingoMatrix = null;
+    lineBingoMatrix = null;
+    
 
     // Fill all the matrixes with random numbers
     for (int i = 0; i < gameCards.Length; i++)
@@ -550,22 +606,24 @@ do
     do
     {
         Title();
-        int drawn;
-        drawn = DrawNumber(drawnNumbers, bingoDrawMaxValue);
-
-        PrintArray(drawnNumbers);
-        Console.WriteLine($"Drawn Number {drawn}\n");
+        DrawNumber(drawnNumbers, bingoDrawMaxValue);
 
         VerifyGameCards(gameCards, drawnNumbers);
 
         verifyPoints(gameCards, playerReferences, playersPoints);
 
-        //printAllCards(gameCards, playerReferences, playersNames);
-        printAlignedMatrixes(gameCards, playerReferences, cardsQuantity, playersNames);
+        if (!bingo)
+        {
+            printAllCards(gameCards, playerReferences, playersNames);
+            //printAlignedMatrixes(gameCards, playerReferences, cardsQuantity, playersNames);
 
-        PrintPlayersPoints(playersPoints, playersNames);
+            PrintPlayersPoints(playersPoints, playersNames);
 
-        Console.ReadKey();
+            Thread.Sleep(50);
+            //Console.ReadKey();
+        }
     } while (!bingo);
+
+    FinalScreen();
 
 } while(ExitMenu());
