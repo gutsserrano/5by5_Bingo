@@ -29,12 +29,15 @@ string[] playersNames = null;
 // Variable to count the point in gameCards
 int count;
 
+//Variable to set if the values in the game will be restarted
 bool restartValues = true;
 
+// Variables to save if a line/column bingo was made
 bool lineBingo;
 bool columnBingo;
 bool bingo;
 
+// Arrays to save the matrixes that have been counteds
 int[,] lineBingoMatrix = null;
 int[,] columnBingoMatrix = null;
 int[,] bingoMatrix = null;
