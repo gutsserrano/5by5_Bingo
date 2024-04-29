@@ -1,12 +1,6 @@
 ﻿// ** BINGO **
 
 // Variable to save the bingo card size
-using System;
-using System.Data.Common;
-using System.Drawing;
-using System.Reflection.Metadata.Ecma335;
-using System.Xml.Linq;
-
 int cardSize = 5;
 
 // Variable to set the max value to draw 
@@ -45,7 +39,6 @@ int[,] lineBingoMatrix = null;
 int[,] columnBingoMatrix = null;
 int[,] bingoMatrix = null;
 
-
 // Function to read the amount of players
 int readPlayersQuantity()
 {
@@ -63,35 +56,6 @@ int readPlayersQuantity()
     } while (quantity < 2);
 
     return quantity;
-}
-
-// Function to read the players names and cards quantities
-void ReadNameAndCards(string[] name, int[] cardsQtt, int quantity)
-{
-    for (int i = 0; i < quantity; i++)
-    {
-        do
-        {
-            Console.WriteLine($"\nName of the player {i + 1}:");
-            name[i] = Console.ReadLine();
-
-            if (name[i] == "")
-            {
-                Console.WriteLine("\nPlease, write the name\n");
-            }
-        } while (name[i] == "");
-
-        do
-        {
-            Console.WriteLine($"\nHow many Bingo Cards {name[i]} will take?");
-            cardsQtt[i] = int.Parse(Console.ReadLine());
-
-            if (cardsQtt[i] < 1)
-            {
-                Console.WriteLine($"\nPlayer {name[i]} must have at least one card!\n");
-            }
-        } while (cardsQtt[i] < 1);
-    }
 }
 
 // Function to read te amount of cards fow wich player
@@ -168,87 +132,6 @@ int[,] FillMatriX(int sideSize, int maxValue)
         }
     }
     return matrix;
-}
-
-// Function to draw a number
-void DrawNumber(int[] drawnNumber, int max)
-{
-    bool stop = false;
-    int aux;
-    do
-    {
-        aux = GetRandom(1, max);
-    } while(ExistsInArray(drawnNumber, aux));
-    
-    for (int i = 0; i < drawnNumber.Length && !stop; i++)
-    {
-        if (drawnNumber[i] == 0)
-        {
-            drawnNumber[i] = aux;
-            stop = true;
-        }
-    }
-
-    int sort;
-    for (int i = 0; i < drawnNumber.Length; i++)
-    {
-        for (int j = 0; j < drawnNumber.Length - 1; j++)
-        {
-            if (drawnNumber[j] < drawnNumber[j + 1])
-            {
-                sort = drawnNumber[j + 1];
-                drawnNumber[j + 1] = drawnNumber[j];
-                drawnNumber[j] = sort;
-            }
-        }
-    }
-
-
-    PrintDrawnNumbers(drawnNumber);
-
-    Console.Write("Current Drawn Number: ");
-    Console.ForegroundColor = ConsoleColor.Black;
-    Console.BackgroundColor = ConsoleColor.White;
-    Console.Write($"{aux}\n");
-    Console.ResetColor();
-    Console.WriteLine();
-}
-
-// Function to verify all cards
-void VerifyGameCards(int[][,] matrix, int[] numbers)
-{
-    for (int i = 0; i < matrix.GetLength(0); i++) 
-    {
-        for (int j = 0; j < numbers.Length; j++)
-        {
-            MarkValue(matrix[i], numbers[j]);
-        }
-    }
-}
-
-// Function to verify if a number exists in a matrix
-bool ExistsInMatrix(int[,] matrix, int number)
-{
-    for (int line = 0; line < matrix.GetLength(0); line++)
-    {
-        for(int column = 0; column < matrix.GetLength(1); column++)
-        {
-            if(number == matrix[line, column]) 
-                return true;
-        }
-    }
-    return false;
-}
-
-// Function to verify if a number exists in a array
-bool ExistsInArray(int[] array, int number)
-{
-    for (int i = 0; i < array.Length; i++)
-    {
-        if(number == array[i]) 
-            return true;
-    }
-    return false;
 }
 
 // Function to verify the line bingo and return the index of the matrix
@@ -352,6 +235,31 @@ int GetRandom(int min, int max)
     return new Random().Next(min, max);
 }
 
+// Function to verify if a number exists in a matrix
+bool ExistsInMatrix(int[,] matrix, int number)
+{
+    for (int line = 0; line < matrix.GetLength(0); line++)
+    {
+        for (int column = 0; column < matrix.GetLength(1); column++)
+        {
+            if (number == matrix[line, column])
+                return true;
+        }
+    }
+    return false;
+}
+
+// Function to verify if a number exists in a array
+bool ExistsInArray(int[] array, int number)
+{
+    for (int i = 0; i < array.Length; i++)
+    {
+        if (number == array[i])
+            return true;
+    }
+    return false;
+}
+
 // Function to play again or not
 bool ExitMenu()
 {
@@ -384,6 +292,91 @@ bool ExitMenu()
         return true;
     }
     return false;
+}
+
+// Function to read the players names and cards quantities
+void ReadNameAndCards(string[] name, int[] cardsQtt, int quantity)
+{
+    for (int i = 0; i < quantity; i++)
+    {
+        do
+        {
+            Console.WriteLine($"\nName of the player {i + 1}:");
+            name[i] = Console.ReadLine();
+
+            if (name[i] == "")
+            {
+                Console.WriteLine("\nPlease, write the name\n");
+            }
+        } while (name[i] == "");
+
+        do
+        {
+            Console.WriteLine($"\nHow many Bingo Cards {name[i]} will take?");
+            cardsQtt[i] = int.Parse(Console.ReadLine());
+
+            if (cardsQtt[i] < 1)
+            {
+                Console.WriteLine($"\nPlayer {name[i]} must have at least one card!\n");
+            }
+        } while (cardsQtt[i] < 1);
+    }
+}
+
+// Function to draw a number
+void DrawNumber(int[] drawnNumber, int max)
+{
+    bool stop = false;
+    int aux;
+    do
+    {
+        aux = GetRandom(1, max);
+    } while (ExistsInArray(drawnNumber, aux));
+
+    for (int i = 0; i < drawnNumber.Length && !stop; i++)
+    {
+        if (drawnNumber[i] == 0)
+        {
+            drawnNumber[i] = aux;
+            stop = true;
+        }
+    }
+
+    int sort;
+    for (int i = 0; i < drawnNumber.Length; i++)
+    {
+        for (int j = 0; j < drawnNumber.Length - 1; j++)
+        {
+            if (drawnNumber[j] < drawnNumber[j + 1])
+            {
+                sort = drawnNumber[j + 1];
+                drawnNumber[j + 1] = drawnNumber[j];
+                drawnNumber[j] = sort;
+            }
+        }
+    }
+
+
+    PrintDrawnNumbers(drawnNumber);
+
+    Console.Write("Current Drawn Number: ");
+    Console.ForegroundColor = ConsoleColor.Black;
+    Console.BackgroundColor = ConsoleColor.White;
+    Console.Write($"{aux}\n");
+    Console.ResetColor();
+    Console.WriteLine();
+}
+
+// Function to verify all cards
+void VerifyGameCards(int[][,] matrix, int[] numbers)
+{
+    for (int i = 0; i < matrix.GetLength(0); i++)
+    {
+        for (int j = 0; j < numbers.Length; j++)
+        {
+            MarkValue(matrix[i], numbers[j]);
+        }
+    }
 }
 
 // Function no mark a value if exists
