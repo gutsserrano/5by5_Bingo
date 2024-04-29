@@ -39,6 +39,10 @@ Desta forma, tendo um vetor que possui os índices das matrizes e o jogador resp
 
 "*->*" = cria
 
+## Jogo em Funcionamento
+
+![image](https://github.com/gutsserrano/5by5_Bingo/assets/64173743/4af16e81-d7fe-481d-b2cf-3c1a2473175e)
+
 # Bingo Game (English)
 
 This Bingo game is a project developed by **5by5 Software Solutions**.
@@ -79,3 +83,5 @@ Thus, having a vector that has the indices of the matrices and the player respon
 - **"playerReferences" -> "playersNames"**
 
 "*->*" = creates
+
+(**the gameplay image is in the Portuguese version above**)
